@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mahesh's Tech Talk – Personal Technical Articles</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Linux+Libertine+Display&family=Linux+Libertine:ital,wght@0,400;0,600;1,400&family=DejaVu+Sans:wght@400;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #f8f9fa;
+      --surface:      #ffffff;
+      --border:       #a2a9b1;
+      --border-light: #eaecf0;
+      --border-dark:  #72777d;
+      --accent:       #3366cc;        /* Gentoo blue */
+      --accent-hover: #1b4ca3;
+      --accent-light: #eaf3fb;
+      --accent-mid:   #c8d3e8;
+      --text:         #202122;
+      --text-muted:   #54595d;
+      --text-light:   #72777d;
+      --heading-bg:   #eaecf0;
+      --sidebar-bg:   #f8f9fa;
+      --sidebar-w:    200px;
+      --toc-bg:       #f8f9fa;
+      --warn-bg:      #fef6e7;
+      --warn-border:  #fc3;
+      --note-bg:      #eaf3fb;
+      --note-border:  #3366cc;
+      --success-bg:   #e6f3e6;
+      --success-border:#5a9e5a;
+      --code-bg:      #f6f8fa;
+      --tag-bg:       #dde3f0;
+    }
+
+    html { font-size: 14px; }
+    body {
+      font-family: 'Linux Libertine', 'Georgia', serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; color: var(--accent-hover); }
+    a:visited { color: #551a8b; }
+
+    /* ── Site Header ──────────────────────────────────────────── */
+    #site-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0;
+    }
+    .header-inner {
+      display: flex;
+      align-items: stretch;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0;
+    }
+    .site-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .logo-mark {
+      width: 46px;
+      height: 46px;
+      background: var(--accent);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Source Code Pro', monospace;
+      font-weight: 600;
+      color: white;
+      font-size: 18px;
+      letter-spacing: -1px;
+      flex-shrink: 0;
+    }
+    .site-name {
+      line-height: 1.1;
+    }
+    .site-name strong {
+      display: block;
+      font-family: 'Linux Libertine Display', 'Georgia', serif;
+      font-size: 1.5rem;
+      color: var(--text);
+      font-weight: normal;
+    }
+    .site-name span {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-family: sans-serif;
+    }
+    .header-search {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 10px 16px;
+      gap: 8px;
+    }
+    .search-wrap {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      background: white;
+    }
+    .search-wrap input {
+      border: none;
+      outline: none;
+      padding: 5px 10px;
+      font-size: 0.9rem;
+      width: 220px;
+      font-family: sans-serif;
+      color: var(--text);
+    }
+    .search-wrap button {
+      background: var(--heading-bg);
+      border: none;
+      border-left: 1px solid var(--border);
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-family: sans-serif;
+      color: var(--text-muted);
+    }
+    .search-wrap button:hover { background: var(--border-light); }
+
+    /* ── Navigation Bar ───────────────────────────────────────── */
+    #site-nav {
+      background: var(--accent);
+      border-bottom: 1px solid var(--accent-hover);
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+    }
+    #site-nav a {
+      color: white;
+      display: block;
+      padding: 6px 14px;
+      font-family: sans-serif;
+      font-size: 0.85rem;
+      text-decoration: none;
+      opacity: 0.9;
+    }
+    #site-nav a:hover { background: rgba(255,255,255,0.15); opacity: 1; text-decoration: none; }
+    #site-nav a.active { background: rgba(255,255,255,0.2); opacity: 1; font-weight: bold; }
+
+    /* ── Layout ───────────────────────────────────────────────── */
+    #layout {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: flex-start;
+      min-height: calc(100vh - 120px);
+    }
+
+    /* ── Sidebar ──────────────────────────────────────────────── */
+    #sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border-light);
+      padding: 16px 0;
+      min-height: calc(100vh - 120px);
+      font-family: sans-serif;
+      font-size: 0.82rem;
+    }
+    .sidebar-section {
+      margin-bottom: 4px;
+    }
+    .sidebar-heading {
+      background: var(--heading-bg);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 4px 10px;
+      font-weight: bold;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 2px;
+    }
+    .sidebar-section ul { list-style: none; padding: 0; }
+    .sidebar-section ul li a {
+      display: block;
+      padding: 3px 10px 3px 18px;
+      color: var(--accent);
+      font-size: 0.82rem;
+      border-bottom: 1px solid transparent;
+    }
+    .sidebar-section ul li a:hover {
+      background: var(--accent-light);
+      text-decoration: none;
+    }
+    .sidebar-section ul li a.current {
+      background: var(--accent-light);
+      color: var(--accent-hover);
+      font-weight: bold;
+    }
+
+    /* ── Main Content ─────────────────────────────────────────── */
+    #content {
+      flex: 1;
+      min-width: 0;
+      padding: 20px 24px;
+      background: var(--surface);
+      border-left: 1px solid var(--border-light);
+    }
+
+    /* Page title area */
+    .page-header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+      margin-bottom: 16px;
+    }
+    .page-header h1 {
+      font-family: 'Linux Libertine Display', 'Georgia', serif;
+      font-size: 1.95rem;
+      font-weight: normal;
+      color: var(--text);
+      line-height: 1.2;
+    }
+    .page-meta {
+      font-family: sans-serif;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .page-meta a { color: var(--text-muted); }
+
+    /* ── Infobox / Notice boxes ───────────────────────────────── */
+    .infobox {
+      float: right;
+      clear: right;
+      margin: 0 0 16px 20px;
+      width: 260px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      font-family: sans-serif;
+      font-size: 0.82rem;
+    }
+    .infobox-title {
+      background: var(--accent);
+      color: white;
+      text-align: center;
+      padding: 5px 8px;
+      font-weight: bold;
+      font-size: 0.85rem;
+    }
+    .infobox table { width: 100%; border-collapse: collapse; }
+    .infobox td { padding: 3px 8px; vertical-align: top; border-top: 1px solid var(--border-light); }
+    .infobox td:first-child { color: var(--text-muted); white-space: nowrap; width: 90px; }
+    .infobox td:last-child { font-weight: 600; }
+
+    .notice-box {
+      border-left: 4px solid var(--note-border);
+      background: var(--note-bg);
+      padding: 10px 14px;
+      margin: 14px 0;
+      font-family: sans-serif;
+      font-size: 0.85rem;
+      border-radius: 0 2px 2px 0;
+    }
+    .notice-box.warn {
+      border-left-color: var(--warn-border);
+      background: var(--warn-bg);
+    }
+    .notice-box.success {
+      border-left-color: var(--success-border);
+      background: var(--success-bg);
+    }
+    .notice-box strong { display: block; margin-bottom: 2px; }
+
+    /* ── Article Content Typography ───────────────────────────── */
+    .article-body h2 {
+      font-family: 'Linux Libertine Display', 'Georgia', serif;
+      font-size: 1.4rem;
+      font-weight: normal;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
+      margin: 22px 0 12px;
+      color: var(--text);
+    }
+    .article-body h3 {
+      font-family: 'Linux Libertine', 'Georgia', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 18px 0 8px;
+      color: var(--text);
+    }
+    .article-body h4 {
+      font-size: 0.95rem;
+      font-weight: bold;
+      margin: 14px 0 6px;
+      font-family: sans-serif;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .article-body p { margin: 0 0 12px; }
+    .article-body ul, .article-body ol { margin: 8px 0 12px 28px; }
+    .article-body li { margin-bottom: 4px; }
+
+    /* Section numbering */
+    .section-num {
+      color: var(--text-muted);
+      font-size: 0.85em;
+      margin-right: 6px;
+    }
+
+    /* ── Code blocks ──────────────────────────────────────────── */
+    pre, code {
+      font-family: 'Source Code Pro', 'Courier New', monospace;
+      font-size: 0.84rem;
+    }
+    code {
+      background: var(--code-bg);
+      border: 1px solid var(--border-light);
+      padding: 1px 4px;
+      border-radius: 2px;
+      color: #c0392b;
+    }
+    pre {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      border: 1px solid #313244;
+      border-left: 4px solid var(--accent);
+      padding: 12px 16px;
+      overflow-x: auto;
+      margin: 12px 0;
+      border-radius: 0 2px 2px 0;
+      line-height: 1.5;
+    }
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: inherit;
+      font-size: inherit;
+    }
+    .cmd-prompt { color: #89dceb; }
+    .cmd-out    { color: #a6e3a1; }
+    .cmd-comment{ color: #6c7086; font-style: italic; }
+    .kw  { color: #cba6f7; }
+    .str { color: #a6e3a1; }
+    .num { color: #fab387; }
+    .fn  { color: #89b4fa; }
+
+    /* File label */
+    .code-block { margin: 12px 0; }
+    .code-label {
+      background: #313244;
+      color: #cdd6f4;
+      font-family: 'Source Code Pro', monospace;
+      font-size: 0.78rem;
+      padding: 3px 10px;
+      display: inline-block;
+      border-radius: 2px 2px 0 0;
+      border: 1px solid #313244;
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+    .code-block pre { margin-top: 0; border-radius: 0 2px 2px 0; }
+
+    /* ── TOC ──────────────────────────────────────────────────── */
+    .toc {
+      background: var(--toc-bg);
+      border: 1px solid var(--border);
+      display: inline-block;
+      padding: 10px 16px;
+      margin: 12px 0 18px;
+      min-width: 200px;
+      max-width: 360px;
+      font-family: sans-serif;
+      font-size: 0.82rem;
+    }
+    .toc-title {
+      font-weight: bold;
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+      text-align: center;
+      color: var(--text);
+    }
+    .toc ol { margin: 0; padding-left: 20px; }
+    .toc li { margin: 2px 0; }
+    .toc a { color: var(--accent); }
+    .toc ol ol { margin-top: 2px; }
+
+    /* ── Article Cards (index page) ───────────────────────────── */
+    .article-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+    .article-card {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 14px 16px;
+      transition: border-color 0.15s;
+    }
+    .article-card:hover { border-color: var(--accent); }
+    .article-card .card-category {
+      font-family: sans-serif;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+    .article-card h3 {
+      font-family: 'Linux Libertine', 'Georgia', serif;
+      font-size: 1.05rem;
+      font-weight: normal;
+      margin: 0 0 6px;
+    }
+    .article-card h3 a { color: var(--accent); }
+    .article-card p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-family: sans-serif;
+      line-height: 1.45;
+      margin: 0 0 8px;
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      background: var(--tag-bg);
+      color: var(--text-muted);
+      font-family: sans-serif;
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 2px;
+      text-transform: lowercase;
+    }
+    .card-date {
+      font-family: sans-serif;
+      font-size: 0.72rem;
+      color: var(--text-light);
+      margin-left: auto;
+    }
+
+    /* ── Category boxes ───────────────────────────────────────── */
+    .category-box {
+      border: 1px solid var(--border);
+      margin: 12px 0;
+    }
+    .category-box-header {
+      background: var(--heading-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 6px 12px;
+      font-family: sans-serif;
+      font-weight: bold;
+      font-size: 0.85rem;
+    }
+    .category-box-body {
+      padding: 10px 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 16px;
+    }
+    .category-box-body a {
+      font-family: sans-serif;
+      font-size: 0.82rem;
+      color: var(--accent);
+    }
+
+    /* ── Footer ───────────────────────────────────────────────── */
+    #site-footer {
+      border-top: 1px solid var(--border);
+      background: var(--heading-bg);
+      text-align: center;
+      padding: 14px;
+      font-family: sans-serif;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    #site-footer a { color: var(--text-muted); }
+
+    /* ── Tabs (article/talk/edit) ─────────────────────────────── */
+    .page-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: -1px;
+      font-family: sans-serif;
+      font-size: 0.82rem;
+    }
+    .page-tab {
+      border: 1px solid var(--border);
+      background: var(--heading-bg);
+      padding: 4px 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: none;
+      margin-right: 2px;
+    }
+    .page-tab.active {
+      background: var(--surface);
+      color: var(--text);
+      border-bottom: 1px solid var(--surface);
+      margin-bottom: -1px;
+      position: relative;
+      z-index: 1;
+    }
+    .page-tab:hover { background: var(--surface); }
+
+    /* ── Responsive ───────────────────────────────────────────── */
+    @media (max-width: 700px) {
+      #sidebar { display: none; }
+      #content { padding: 14px 16px; }
+      .infobox { float: none; width: 100%; margin: 12px 0; }
+      .article-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Utility ──────────────────────────────────────────────── */
+    .clearfix::after { content: ''; display: table; clear: both; }
+    hr { border: none; border-top: 1px solid var(--border-light); margin: 20px 0; }
+    .text-muted { color: var(--text-muted); font-family: sans-serif; font-size: 0.82rem; }
+    .see-also {
+      background: var(--toc-bg);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      margin: 16px 0;
+      font-family: sans-serif;
+      font-size: 0.82rem;
+    }
+    .see-also strong { margin-right: 8px; }
+    .see-also a { margin-right: 12px; }
+  </style>
+</head>
+<body>
+
+<!-- ── Site Header ── -->
+<header id="site-header">
+  <div class="header-inner">
+    <a class="site-logo" href="index.html">
+      <div class="logo-mark">&gt;_</div>
+      <div class="site-name">
+        <strong>Mahesh's Tech Talk</strong>
+        <span>Personal Technical Articles</span>
+      </div>
+    </a>
+    <div class="header-search">
+      <div class="search-wrap">
+        <input type="text" placeholder="Search articles…" aria-label="Search" />
+        <button>Go</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── Navigation ── -->
+<nav id="site-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="active">Main Page</a>
+    <a href="articles.html">Articles</a>
+    <a href="categories.html">Categories</a>
+    <a href="about.html">About</a>
+    <a href="https://github.com/maheshkhanwalkar">GitHub ↗</a>
+  </div>
+</nav>
+
+<!-- ── Layout ── -->
+<div id="layout">
+
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Navigation</div>
+      <ul>
+        <li><a href="index.html" class="current">Main Page</a></li>
+        <li><a href="articles.html">All Articles</a></li>
+        <li><a href="categories.html">Categories</a></li>
+        <li><a href="about.html">About Me</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Topics</div>
+      <ul>
+        <li><a href="#">Linux</a></li>
+        <li><a href="#">Networking</a></li>
+        <li><a href="#">Security</a></li>
+        <li><a href="#">Programming</a></li>
+        <li><a href="#">Containers</a></li>
+        <li><a href="#">Embedded</a></li>
+        <li><a href="#">Tools</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Recent</div>
+      <ul>
+        <li><a href="article-example.html">WireGuard Setup</a></li>
+        <li><a href="#">Rust Ownership</a></li>
+        <li><a href="#">NixOS Config</a></li>
+        <li><a href="#">eBPF Basics</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-heading">External</div>
+      <ul>
+        <li><a href="https://github.com/yourusername">GitHub ↗</a></li>
+        <li><a href="#">RSS Feed ↗</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main id="content">
+    <div class="page-tabs">
+      <div class="page-tab active">Main Page</div>
+      <div class="page-tab">Discussion</div>
+      <div class="page-tab">Edit</div>
+      <div class="page-tab">History</div>
+    </div>
+
+    <div class="page-header">
+      <h1>Welcome to TechWiki</h1>
+      <div class="page-meta">Personal technical knowledge base · Updated regularly</div>
+    </div>
+
+    <div class="article-body clearfix">
+
+      <div class="infobox">
+        <div class="infobox-title">Site Info</div>
+        <table>
+          <tr><td>Author</td><td>Your Name</td></tr>
+          <tr><td>Articles</td><td>42</td></tr>
+          <tr><td>Topics</td><td>7</td></tr>
+          <tr><td>Since</td><td>2024</td></tr>
+          <tr><td>License</td><td>CC BY-SA 4.0</td></tr>
+          <tr><td>Source</td><td><a href="#">GitHub ↗</a></td></tr>
+        </table>
+      </div>
+
+      <p>
+        This is a personal wiki for technical articles on Linux, systems programming, networking, security, and developer tooling. Articles aim to be practical and reference-quality — the kind of documentation you wish existed when you were first figuring something out.
+      </p>
+
+      <div class="notice-box">
+        <strong>📌 Latest Article</strong>
+        <a href="article-example.html">Setting up WireGuard on Linux with split tunneling</a> — Posted 2025-05-18.
+      </div>
+
+      <h2><span class="section-num">1</span> Featured Articles</h2>
+      <p>Highlights from the archive, selected for depth and practical usefulness.</p>
+
+      <div class="article-grid">
+        <div class="article-card">
+          <div class="card-category">Networking</div>
+          <h3><a href="article-example.html">WireGuard VPN: Full Setup Guide</a></h3>
+          <p>Peer-to-peer VPN configuration with split tunneling, kill switch, and systemd integration on modern Linux systems.</p>
+          <div class="card-footer">
+            <span class="tag">wireguard</span>
+            <span class="tag">vpn</span>
+            <span class="tag">systemd</span>
+            <span class="card-date">2025-05-18</span>
+          </div>
+        </div>
+        <div class="article-card">
+          <div class="card-category">Programming</div>
+          <h3><a href="#">Rust Ownership Without the Pain</a></h3>
+          <p>A practical mental model for Rust's borrow checker — built from real mistakes and hard-won intuition.</p>
+          <div class="card-footer">
+            <span class="tag">rust</span>
+            <span class="tag">systems</span>
+            <span class="card-date">2025-04-02</span>
+          </div>
+        </div>
+        <div class="article-card">
+          <div class="card-category">Linux</div>
+          <h3><a href="#">eBPF from First Principles</a></h3>
+          <p>Understanding the BPF virtual machine, maps, and programs — from hello-world to a custom network probe.</p>
+          <div class="card-footer">
+            <span class="tag">ebpf</span>
+            <span class="tag">kernel</span>
+            <span class="tag">observability</span>
+            <span class="card-date">2025-03-15</span>
+          </div>
+        </div>
+        <div class="article-card">
+          <div class="card-category">Security</div>
+          <h3><a href="#">SSH Hardening Checklist</a></h3>
+          <p>Practical hardening guide covering key auth, ciphers, port knocking, Fail2ban, and audit logging.</p>
+          <div class="card-footer">
+            <span class="tag">ssh</span>
+            <span class="tag">security</span>
+            <span class="card-date">2025-02-28</span>
+          </div>
+        </div>
+        <div class="article-card">
+          <div class="card-category">Tools</div>
+          <h3><a href="#">Neovim as an IDE: A Realistic Guide</a></h3>
+          <p>LSP, DAP, Treesitter, and Telescope — building a productive Neovim config without cargo-culting.</p>
+          <div class="card-footer">
+            <span class="tag">neovim</span>
+            <span class="tag">editor</span>
+            <span class="card-date">2025-02-10</span>
+          </div>
+        </div>
+        <div class="article-card">
+          <div class="card-category">Containers</div>
+          <h3><a href="#">Rootless Podman Deep Dive</a></h3>
+          <p>Running containers without root using Podman: user namespaces, networking, and systemd socket activation.</p>
+          <div class="card-footer">
+            <span class="tag">podman</span>
+            <span class="tag">containers</span>
+            <span class="tag">security</span>
+            <span class="card-date">2025-01-22</span>
+          </div>
+        </div>
+      </div>
+
+      <h2><span class="section-num">2</span> Browse by Category</h2>
+
+      <div class="category-box">
+        <div class="category-box-header">🐧 Linux & Systems</div>
+        <div class="category-box-body">
+          <a href="#">Boot process</a>
+          <a href="#">Systemd</a>
+          <a href="#">eBPF</a>
+          <a href="#">Kernel modules</a>
+          <a href="#">Filesystem tuning</a>
+          <a href="#">cgroups v2</a>
+          <a href="#">NixOS</a>
+          <a href="#">Package management</a>
+        </div>
+      </div>
+
+      <div class="category-box">
+        <div class="category-box-header">🌐 Networking</div>
+        <div class="category-box-body">
+          <a href="#">WireGuard</a>
+          <a href="#">DNS internals</a>
+          <a href="#">BGP basics</a>
+          <a href="#">IPv6 setup</a>
+          <a href="#">tc and iproute2</a>
+          <a href="#">Firewall with nftables</a>
+        </div>
+      </div>
+
+      <div class="category-box">
+        <div class="category-box-header">🔒 Security</div>
+        <div class="category-box-body">
+          <a href="#">SSH hardening</a>
+          <a href="#">GPG workflows</a>
+          <a href="#">SELinux</a>
+          <a href="#">Cryptography basics</a>
+          <a href="#">Audit logging</a>
+          <a href="#">CVE analysis</a>
+        </div>
+      </div>
+
+      <div class="category-box">
+        <div class="category-box-header">⌨️ Programming</div>
+        <div class="category-box-body">
+          <a href="#">Rust</a>
+          <a href="#">C systems code</a>
+          <a href="#">Python internals</a>
+          <a href="#">Shell scripting</a>
+          <a href="#">WASM</a>
+          <a href="#">Git advanced</a>
+        </div>
+      </div>
+
+      <h2><span class="section-num">3</span> About This Site</h2>
+
+      <p>
+        Articles here are written to be reference-quality: precise, tested, and revisited when things change. Each one started as personal notes that got long enough to be worth publishing. If you spot an error or outdated command, the source is on <a href="#">GitHub</a> and corrections are welcome.
+      </p>
+
+      <div class="see-also">
+        <strong>See also:</strong>
+        <a href="about.html">About Me</a>
+        <a href="#">RSS Feed</a>
+        <a href="#">GitHub</a>
+        <a href="#">Contact</a>
+      </div>
+
+    </div><!-- .article-body -->
+  </main>
+</div><!-- #layout -->
+
+<footer id="site-footer">
+  <p>
+    TechWiki · Licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
+    unless otherwise noted · Hosted on <a href="https://pages.github.com/">GitHub Pages</a>
+    · <a href="#">Source</a>
+  </p>
+</footer>
+
+</body>
+</html>
