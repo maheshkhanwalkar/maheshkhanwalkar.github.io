@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mahesh's Tech Talk – Personal Technical Articles</title>
+  <title>All Articles – Mahesh's Tech Talk</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Linux+Libertine+Display&family=Linux+Libertine:ital,wght@0,400;0,600;1,400&family=DejaVu+Sans:wght@400;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet" />
   <style>
@@ -242,49 +242,6 @@
     }
     .page-meta a { color: var(--text-muted); }
 
-    /* ── Infobox / Notice boxes ───────────────────────────────── */
-    .infobox {
-      float: right;
-      clear: right;
-      margin: 0 0 16px 20px;
-      width: 260px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      font-family: sans-serif;
-      font-size: 0.82rem;
-    }
-    .infobox-title {
-      background: var(--accent);
-      color: white;
-      text-align: center;
-      padding: 5px 8px;
-      font-weight: bold;
-      font-size: 0.85rem;
-    }
-    .infobox table { width: 100%; border-collapse: collapse; }
-    .infobox td { padding: 3px 8px; vertical-align: top; border-top: 1px solid var(--border-light); }
-    .infobox td:first-child { color: var(--text-muted); white-space: nowrap; width: 90px; }
-    .infobox td:last-child { font-weight: 600; }
-
-    .notice-box {
-      border-left: 4px solid var(--note-border);
-      background: var(--note-bg);
-      padding: 10px 14px;
-      margin: 14px 0;
-      font-family: sans-serif;
-      font-size: 0.85rem;
-      border-radius: 0 2px 2px 0;
-    }
-    .notice-box.warn {
-      border-left-color: var(--warn-border);
-      background: var(--warn-bg);
-    }
-    .notice-box.success {
-      border-left-color: var(--success-border);
-      background: var(--success-bg);
-    }
-    .notice-box strong { display: block; margin-bottom: 2px; }
-
     /* ── Article Content Typography ───────────────────────────── */
     .article-body h2 {
       font-family: 'Linux Libertine Display', 'Georgia', serif;
@@ -314,13 +271,6 @@
     .article-body p { margin: 0 0 12px; }
     .article-body ul, .article-body ol { margin: 8px 0 12px 28px; }
     .article-body li { margin-bottom: 4px; }
-
-    /* Section numbering */
-    .section-num {
-      color: var(--text-muted);
-      font-size: 0.85em;
-      margin-right: 6px;
-    }
 
     /* ── Code blocks ──────────────────────────────────────────── */
     pre, code {
@@ -352,15 +302,6 @@
       color: inherit;
       font-size: inherit;
     }
-    .cmd-prompt { color: #89dceb; }
-    .cmd-out    { color: #a6e3a1; }
-    .cmd-comment{ color: #6c7086; font-style: italic; }
-    .kw  { color: #cba6f7; }
-    .str { color: #a6e3a1; }
-    .num { color: #fab387; }
-    .fn  { color: #89b4fa; }
-
-    /* File label */
     .code-block { margin: 12px 0; }
     .code-label {
       background: #313244;
@@ -375,30 +316,6 @@
       margin-bottom: 0;
     }
     .code-block pre { margin-top: 0; border-radius: 0 2px 2px 0; }
-
-    /* ── TOC ──────────────────────────────────────────────────── */
-    .toc {
-      background: var(--toc-bg);
-      border: 1px solid var(--border);
-      display: inline-block;
-      padding: 10px 16px;
-      margin: 12px 0 18px;
-      min-width: 200px;
-      max-width: 360px;
-      font-family: sans-serif;
-      font-size: 0.82rem;
-    }
-    .toc-title {
-      font-weight: bold;
-      margin-bottom: 6px;
-      font-size: 0.85rem;
-      text-align: center;
-      color: var(--text);
-    }
-    .toc ol { margin: 0; padding-left: 20px; }
-    .toc li { margin: 2px 0; }
-    .toc a { color: var(--accent); }
-    .toc ol ol { margin-top: 2px; }
 
     /* ── Article Cards (index page) ───────────────────────────── */
     .article-grid {
@@ -495,38 +412,10 @@
     }
     #site-footer a { color: var(--text-muted); }
 
-    /* ── Tabs (article/talk/edit) ─────────────────────────────── */
-    .page-tabs {
-      display: flex;
-      gap: 0;
-      margin-bottom: -1px;
-      font-family: sans-serif;
-      font-size: 0.82rem;
-    }
-    .page-tab {
-      border: 1px solid var(--border);
-      background: var(--heading-bg);
-      padding: 4px 12px;
-      color: var(--text-muted);
-      cursor: pointer;
-      border-bottom: none;
-      margin-right: 2px;
-    }
-    .page-tab.active {
-      background: var(--surface);
-      color: var(--text);
-      border-bottom: 1px solid var(--surface);
-      margin-bottom: -1px;
-      position: relative;
-      z-index: 1;
-    }
-    .page-tab:hover { background: var(--surface); }
-
     /* ── Responsive ───────────────────────────────────────────── */
     @media (max-width: 700px) {
       #sidebar { display: none; }
       #content { padding: 14px 16px; }
-      .infobox { float: none; width: 100%; margin: 12px 0; }
       .article-grid { grid-template-columns: 1fr; }
     }
 
@@ -534,91 +423,8 @@
     .clearfix::after { content: ''; display: table; clear: both; }
     hr { border: none; border-top: 1px solid var(--border-light); margin: 20px 0; }
     .text-muted { color: var(--text-muted); font-family: sans-serif; font-size: 0.82rem; }
-    .see-also {
-      background: var(--toc-bg);
-      border: 1px solid var(--border);
-      padding: 10px 14px;
-      margin: 16px 0;
-      font-family: sans-serif;
-      font-size: 0.82rem;
-    }
-    .see-also strong { margin-right: 8px; }
-    .see-also a { margin-right: 12px; }
   </style>
 </head>
-  <!-- Scripts -->
-  <script>
-    // Search functionality
-    (function() {
-      const searchInput = document.querySelector('.header-search input');
-      const searchBtn = document.querySelector('.header-search button');
-      const articleCards = document.querySelectorAll('.article-card');
-      const sidebarItems = document.querySelectorAll('#sidebar ul li a');
-      let currentSearch = '';
-
-      function filterArticles() {
-        const query = searchInput.value.toLowerCase().trim();
-        currentSearch = query;
-
-        articleCards.forEach(card => {
-          const title = card.querySelector('h3 a').textContent.toLowerCase();
-          const desc = card.querySelector('p').textContent.toLowerCase();
-          const tags = Array.from(card.querySelectorAll('.tag')).map(t => t.textContent.toLowerCase());
-          const date = card.querySelector('.card-date').textContent.toLowerCase();
-
-          const matches = title.includes(query) ||
-                          desc.includes(query) ||
-                          tags.some(t => t.includes(query)) ||
-                          date.includes(query);
-
-          card.style.display = matches ? '' : 'none';
-        });
-
-        // Update sidebar to reflect filtered results
-        updateSidebar(query);
-      }
-
-      function updateSidebar(query) {
-        sidebarItems.forEach(link => {
-          link.classList.remove('current');
-          if (query) {
-            link.classList.add('current');
-          }
-        });
-      }
-
-      searchInput.addEventListener('input', filterArticles);
-      searchBtn.addEventListener('click', filterArticles);
-
-      // Keyboard navigation for search
-      searchInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          searchBtn.click();
-        }
-      });
-
-      // Initialize
-      filterArticles();
-    })();
-
-    // Update active nav/tab based on URL
-    (function() {
-      const navLinks = document.querySelectorAll('#site-nav a');
-      const sidebarItems = document.querySelectorAll('#sidebar ul li a');
-      const path = window.location.pathname;
-
-      navLinks.forEach(link => {
-        if (link.getAttribute('href') === path || link.getAttribute('href') === 'index.html') {
-          link.classList.add('active');
-        }
-      });
-
-      sidebarItems.forEach(item => {
-        const href = item.getAttribute('href');
-        if (href === 'index.html') item.classList.add('current');
-      });
-    })();
-  </script>
 <body>
 
 <!-- ── Site Header ── -->
@@ -643,8 +449,8 @@
 <!-- ── Navigation ── -->
 <nav id="site-nav">
   <div class="nav-inner">
-    <a href="index.html" class="active">Main Page</a>
-    <a href="articles.html">Articles</a>
+    <a href="index.html">Main Page</a>
+    <a href="articles.html" class="active">All Articles</a>
     <a href="categories.html">Categories</a>
     <a href="about.html">About</a>
     <a href="https://github.com/maheshkhanwalkar">GitHub ↗</a>
@@ -659,8 +465,8 @@
     <div class="sidebar-section">
       <div class="sidebar-heading">Navigation</div>
       <ul>
-        <li><a href="index.html" class="current">Main Page</a></li>
-        <li><a href="articles.html">All Articles</a></li>
+        <li><a href="index.html">Main Page</a></li>
+        <li><a href="articles.html" class="current">All Articles</a></li>
         <li><a href="categories.html">Categories</a></li>
         <li><a href="about.html">About Me</a></li>
       </ul>
@@ -687,41 +493,30 @@
 
   <!-- Main Content -->
   <main id="content">
-    <div class="page-header" style="margin-top: 16px;">
-      <h1>Welcome to Mahesh's Tech Talk</h1>
-      <div class="page-meta">Personal technical knowledge base · Updated regularly</div>
+    <div class="page-header">
+      <h1>All Articles</h1>
+      <div class="page-meta">Complete archive of technical articles</div>
     </div>
 
     <div class="article-body clearfix">
 
       <div class="notice-box">
-        <strong>🔍 Search</strong>
-        <p>Type in the search box above to filter articles by title or description.</p>
+        <strong>📚 Browse Articles</strong>
+        <p>This page lists all published articles in reverse chronological order. Use the search box above to filter by title, description, or tags.</p>
       </div>
 
       <div class="infobox">
-        <div class="infobox-title">Site Info</div>
+        <div class="infobox-title">Archive Info</div>
         <table>
-          <tr><td>Author</td><td>Mahesh Khanwalkar</td></tr>
-          <tr><td>Articles</td><td>1</td></tr>
-          <tr><td>Topics</td><td>1</td></tr>
+          <tr><td>Total Articles</td><td>1</td></tr>
+          <tr><td>Categories</td><td>1</td></tr>
+          <tr><td>Tags</td><td>6</td></tr>
           <tr><td>Since</td><td>2026</td></tr>
-          <tr><td>License</td><td>CC BY-SA 4.0</td></tr>
-          <tr><td>Source</td><td><a href="https://github.com/maheshkhanwalkar/maheshkhanwalkar.github.io">GitHub ↗</a></td></tr>
         </table>
       </div>
 
-      <p>
-        This is a personal wiki for technical articles on a variety of different topics. Articles aim to be practical and reference-quality — the kind of documentation you wish existed when you were first figuring something out.
-      </p>
-
-      <div class="notice-box">
-        <strong>📌 Latest Article</strong>
-        <a href="finetune-qwen-unsloth.html">Fine-tuning Qwen2.5-Coder with HuggingFace and Unsloth</a> — Posted 2026-05-24.
-      </div>
-
-      <h2><span class="section-num">1</span> Featured Articles</h2>
-      <p>Highlights from the archive, selected for depth and practical usefulness.</p>
+      <h2><span class="section-num">1</span> Article Archive</h2>
+      <p>Below are all published articles, sorted by date (newest first).</p>
 
       <div class="article-grid">
         <div class="article-card">
@@ -745,19 +540,6 @@
         <div class="category-box-body">
           <a href="finetune-qwen-unsloth.html">LLM Fine-tuning</a>
         </div>
-      </div>
-
-      <h2><span class="section-num">3</span> About This Site</h2>
-
-      <p>
-        Articles here are written to be reference-quality: precise, tested, and revisited when things change. Each one started as personal notes that got long enough to be worth publishing. If you spot an error or outdated command, the source is on <a href="https://github.com/maheshkhanwalkar/maheshkhanwalkar.github.io">GitHub</a> and corrections are welcome.
-      </p>
-
-      <div class="see-also">
-        <strong>See also:</strong>
-        <a href="about.html">About Me</a>
-        <a href="https://github.com/maheshkhanwalkar/maheshkhanwalkar.github.io">GitHub</a>
-        <a href="#">Contact</a>
       </div>
 
     </div><!-- .article-body -->
