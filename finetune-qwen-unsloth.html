@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fine-tuning Qwen2.5-Coder with HuggingFace and Unsloth – Mahesh's Tech Talk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Linux+Libertine+Display&family=Linux+Libertine:ital,wght@0,400;0,600;1,400&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #f8f9fa;
+      --surface:       #ffffff;
+      --border:        #a2a9b1;
+      --border-light:  #eaecf0;
+      --accent:        #3366cc;
+      --accent-hover:  #1b4ca3;
+      --accent-light:  #eaf3fb;
+      --text:          #202122;
+      --text-muted:    #54595d;
+      --text-light:    #72777d;
+      --heading-bg:    #eaecf0;
+      --sidebar-bg:    #f8f9fa;
+      --sidebar-w:     200px;
+      --toc-bg:        #f8f9fa;
+      --warn-bg:       #fef6e7;
+      --warn-border:   #fc3;
+      --note-bg:       #eaf3fb;
+      --note-border:   #3366cc;
+      --success-bg:    #e6f3e6;
+      --success-border:#5a9e5a;
+      --code-bg:       #f6f8fa;
+      --tag-bg:        #dde3f0;
+    }
+
+    html { font-size: 14px; }
+    body { font-family: 'Linux Libertine', 'Georgia', serif; background: var(--bg); color: var(--text); line-height: 1.65; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; color: var(--accent-hover); }
+    a:visited { color: #551a8b; }
+
+    /* Header */
+    #site-header { background: var(--surface); border-bottom: 1px solid var(--border); }
+    .header-inner { display: flex; align-items: stretch; max-width: 1200px; margin: 0 auto; }
+    .site-logo { display: flex; align-items: center; gap: 10px; padding: 10px 16px; text-decoration: none; flex-shrink: 0; }
+    .logo-mark { width: 46px; height: 46px; background: var(--accent); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-family: 'Source Code Pro', monospace; font-weight: 600; color: white; font-size: 18px; letter-spacing: -1px; }
+    .site-name strong { display: block; font-family: 'Linux Libertine Display', serif; font-size: 1.5rem; color: var(--text); font-weight: normal; }
+    .site-name span { font-size: 0.78rem; color: var(--text-muted); font-family: sans-serif; }
+    .header-search { flex: 1; display: flex; align-items: center; justify-content: flex-end; padding: 10px 16px; }
+    .search-wrap { display: flex; border: 1px solid var(--border); border-radius: 2px; overflow: hidden; background: white; }
+    .search-wrap input { border: none; outline: none; padding: 5px 10px; font-size: 0.9rem; width: 220px; font-family: sans-serif; }
+    .search-wrap button { background: var(--heading-bg); border: none; border-left: 1px solid var(--border); padding: 5px 10px; cursor: pointer; font-size: 0.8rem; font-family: sans-serif; color: var(--text-muted); }
+
+    /* Nav */
+    #site-nav { background: var(--accent); border-bottom: 1px solid var(--accent-hover); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; display: flex; }
+    #site-nav a { color: white; display: block; padding: 6px 14px; font-family: sans-serif; font-size: 0.85rem; text-decoration: none; opacity: 0.9; }
+    #site-nav a:hover { background: rgba(255,255,255,0.15); opacity: 1; text-decoration: none; }
+    #site-nav a.active { background: rgba(255,255,255,0.2); opacity: 1; font-weight: bold; }
+
+    /* Layout */
+    #layout { max-width: 1200px; margin: 0 auto; display: flex; align-items: flex-start; }
+
+    /* Sidebar */
+    #sidebar { width: var(--sidebar-w); flex-shrink: 0; background: var(--sidebar-bg); border-right: 1px solid var(--border-light); padding: 16px 0; min-height: calc(100vh - 120px); font-family: sans-serif; font-size: 0.82rem; }
+    .sidebar-heading { background: var(--heading-bg); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 4px 10px; font-weight: bold; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; }
+    .sidebar-section { margin-bottom: 4px; }
+    .sidebar-section ul { list-style: none; padding: 0; }
+    .sidebar-section ul li a { display: block; padding: 3px 10px 3px 18px; color: var(--accent); font-size: 0.82rem; }
+    .sidebar-section ul li a:hover { background: var(--accent-light); text-decoration: none; }
+    .sidebar-section ul li a.current { background: var(--accent-light); color: var(--accent-hover); font-weight: bold; }
+
+    /* Content */
+    #content { flex: 1; min-width: 0; padding: 20px 24px; background: var(--surface); border-left: 1px solid var(--border-light); }
+
+    .page-header { border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 16px; margin-top: 16px; }
+    .page-header h1 { font-family: 'Linux Libertine Display', serif; font-size: 1.95rem; font-weight: normal; line-height: 1.2; }
+    .page-meta { font-family: sans-serif; font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+
+    /* Infobox */
+    .infobox { float: right; clear: right; margin: 0 0 16px 20px; width: 250px; border: 1px solid var(--border); background: var(--surface); font-family: sans-serif; font-size: 0.82rem; }
+    .infobox-title { background: var(--accent); color: white; text-align: center; padding: 5px 8px; font-weight: bold; font-size: 0.85rem; }
+    .infobox table { width: 100%; border-collapse: collapse; }
+    .infobox td { padding: 3px 8px; vertical-align: top; border-top: 1px solid var(--border-light); }
+    .infobox td:first-child { color: var(--text-muted); white-space: nowrap; width: 85px; }
+    .infobox td:last-child { font-weight: 600; }
+
+    /* Notice boxes */
+    .notice-box { border-left: 4px solid var(--note-border); background: var(--note-bg); padding: 10px 14px; margin: 14px 0; font-family: sans-serif; font-size: 0.85rem; border-radius: 0 2px 2px 0; }
+    .notice-box.warn { border-left-color: var(--warn-border); background: var(--warn-bg); }
+    .notice-box.success { border-left-color: var(--success-border); background: var(--success-bg); }
+    .notice-box strong { display: block; margin-bottom: 2px; }
+
+    /* TOC */
+    .toc { background: var(--toc-bg); border: 1px solid var(--border); display: inline-block; padding: 10px 16px; margin: 12px 0 18px; min-width: 220px; max-width: 400px; font-family: sans-serif; font-size: 0.82rem; }
+    .toc-title { font-weight: bold; margin-bottom: 6px; font-size: 0.85rem; text-align: center; }
+    .toc ol { margin: 0; padding-left: 20px; }
+    .toc li { margin: 2px 0; }
+    .toc a { color: var(--accent); }
+    .toc ol ol { margin-top: 2px; }
+
+    /* Article body */
+    .article-body h2 { font-family: 'Linux Libertine Display', serif; font-size: 1.4rem; font-weight: normal; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin: 24px 0 12px; }
+    .article-body h3 { font-family: 'Linux Libertine', serif; font-size: 1.1rem; font-weight: 600; margin: 18px 0 8px; }
+    .article-body h4 { font-size: 0.9rem; font-weight: bold; margin: 14px 0 6px; font-family: sans-serif; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .article-body p { margin: 0 0 12px; }
+    .article-body ul, .article-body ol { margin: 8px 0 12px 28px; }
+    .article-body li { margin-bottom: 4px; }
+    .section-num { color: var(--text-muted); font-size: 0.85em; margin-right: 6px; }
+
+    /* Code */
+    pre, code { font-family: 'Source Code Pro', 'Courier New', monospace; font-size: 0.84rem; }
+    code { background: var(--code-bg); border: 1px solid var(--border-light); padding: 1px 4px; border-radius: 2px; color: #c0392b; }
+    pre { background: #1e1e2e; color: #cdd6f4; border: 1px solid #313244; border-left: 4px solid var(--accent); padding: 12px 16px; overflow-x: auto; margin: 0; border-radius: 0 2px 2px 0; line-height: 1.5; }
+    pre code { background: none; border: none; padding: 0; color: inherit; font-size: inherit; }
+
+    /* Syntax colours */
+    .cm  { color: #6c7086; font-style: italic; }   /* comment */
+    .kw  { color: #cba6f7; }                        /* keyword / def */
+    .fn  { color: #89b4fa; }                        /* function name */
+    .st  { color: #a6e3a1; }                        /* string */
+    .nm  { color: #fab387; }                        /* number */
+    .hl  { color: #f9e2af; }                        /* highlighted token */
+    .op  { color: #89dceb; }                        /* operator / punctuation */
+
+    .code-block { margin: 12px 0; }
+    .code-label { background: #313244; color: #cdd6f4; font-family: 'Source Code Pro', monospace; font-size: 0.78rem; padding: 3px 10px; display: inline-block; border-radius: 2px 2px 0 0; }
+    .code-block pre { margin-top: 0; }
+
+    /* see-also / tags / nav */
+    .see-also { background: var(--toc-bg); border: 1px solid var(--border); padding: 10px 14px; margin: 16px 0; font-family: sans-serif; font-size: 0.82rem; }
+    .see-also strong { margin-right: 8px; }
+    .see-also a { margin-right: 12px; }
+    .tag-list { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0; }
+    .tag { background: var(--tag-bg); color: var(--text-muted); font-family: sans-serif; font-size: 0.72rem; padding: 2px 7px; border-radius: 2px; }
+    .article-nav { display: flex; justify-content: flex-end; border-top: 1px solid var(--border-light); margin-top: 28px; padding-top: 12px; font-family: sans-serif; font-size: 0.82rem; }
+    .article-nav a { color: var(--accent); }
+
+    /* comparison table */
+    .cmp-table { width: 100%; border-collapse: collapse; font-family: sans-serif; font-size: 0.84rem; margin: 12px 0; }
+    .cmp-table th { background: var(--heading-bg); border: 1px solid var(--border); padding: 6px 10px; text-align: left; }
+    .cmp-table td { border: 1px solid var(--border-light); padding: 6px 10px; vertical-align: top; }
+    .cmp-table tr:nth-child(even) td { background: var(--bg); }
+
+    /* Footer */
+    #site-footer { border-top: 1px solid var(--border); background: var(--heading-bg); text-align: center; padding: 14px; font-family: sans-serif; font-size: 0.78rem; color: var(--text-muted); }
+    #site-footer a { color: var(--text-muted); }
+
+    .clearfix::after { content: ''; display: table; clear: both; }
+    @media (max-width: 700px) { #sidebar { display: none; } #content { padding: 14px 16px; } .infobox { float: none; width: 100%; margin: 12px 0; } }
+  </style>
+</head>
+<body>
+
+<header id="site-header">
+  <div class="header-inner">
+    <a class="site-logo" href="index.html">
+      <div class="logo-mark">&gt;_</div>
+      <div class="site-name">
+        <strong>Mahesh's Tech Talk</strong>
+        <span>Personal Technical Articles</span>
+      </div>
+    </a>
+    <div class="header-search">
+      <div class="search-wrap">
+        <input type="text" placeholder="Search articles…" />
+        <button>Go</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav id="site-nav">
+  <div class="nav-inner">
+    <a href="index.html">Main Page</a>
+    <a href="articles.html">Articles</a>
+    <a href="categories.html">Categories</a>
+    <a href="about.html">About</a>
+    <a href="https://github.com/maheshkhanwalkar">GitHub ↗</a>
+  </div>
+</nav>
+
+<div id="layout">
+  <aside id="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Navigation</div>
+      <ul>
+        <li><a href="index.html">Main Page</a></li>
+        <li><a href="articles.html">All Articles</a></li>
+        <li><a href="categories.html">Categories</a></li>
+        <li><a href="about.html">About Me</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Topics</div>
+      <ul>
+        <li><a href="#" class="current">AI</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-heading">In This Article</div>
+      <ul>
+        <li><a href="#background">Background</a></li>
+        <li><a href="#setup">Setup</a></li>
+        <li><a href="#model">Loading the Model</a></li>
+        <li><a href="#lora">LoRA Adapters</a></li>
+        <li><a href="#dataset">Dataset</a></li>
+        <li><a href="#formatting">Formatting</a></li>
+        <li><a href="#training">Training</a></li>
+        <li><a href="#export">Export &amp; Push</a></li>
+        <li><a href="#results">Results</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-heading">External</div>
+      <ul>
+        <li><a href="https://github.com/maheshkhanwalkar/LLM">Source on GitHub ↗</a></li>
+        <li><a href="https://huggingface.co/xtremecoder/Qwen2.5-Coder-7B-Instruct-Python-bnb-4bit">Model on HF ↗</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main id="content">
+    <div class="page-header">
+      <h1>Fine-tuning Qwen2.5-Coder with HuggingFace and Unsloth</h1>
+      <div class="page-meta">
+        Category: <a href="#">AI</a> ·
+        Posted: 2026-05-24 ·
+        ~10 min read ·
+        <a href="https://github.com/maheshkhanwalkar/LLM">Source code ↗</a>
+      </div>
+    </div>
+
+    <div class="article-body clearfix">
+
+      <div class="infobox">
+        <div class="infobox-title">Article Info</div>
+        <table>
+          <tr><td>Topic</td><td>AI / LLMs</td></tr>
+          <tr><td>Model</td><td>Qwen2.5-Coder-7B</td></tr>
+          <tr><td>Method</td><td>QLoRA (4-bit)</td></tr>
+          <tr><td>Dataset</td><td>18k Python alpaca</td></tr>
+          <tr><td>VRAM</td><td>~16 GB</td></tr>
+          <tr><td>Posted</td><td>2026-05-24</td></tr>
+        </table>
+      </div>
+
+      <p>
+        This article walks through fine-tuning <a href="https://huggingface.co/unsloth/Qwen2.5-Coder-7B-Instruct-bnb-4bit">Qwen2.5-Coder-7B-Instruct</a> on a Python instruction dataset using <a href="https://github.com/unslothai/unsloth">Unsloth</a> and HuggingFace's TRL library. The goal was hands-on experimentation with QLoRA fine-tuning and to see how much a relatively small dataset shifts the model's output style.
+      </p>
+      <p>
+        The resulting model is published on HuggingFace as <a href="https://huggingface.co/xtremecoder/Qwen2.5-Coder-7B-Instruct-Python-bnb-4bit">xtremecoder/Qwen2.5-Coder-7B-Instruct-Python-bnb-4bit</a>.
+      </p>
+
+      <div class="toc">
+        <div class="toc-title">Contents</div>
+        <ol>
+          <li><a href="#background">Background</a></li>
+          <li><a href="#setup">Setup</a></li>
+          <li><a href="#model">Loading the Model (4-bit QLoRA)</a></li>
+          <li><a href="#lora">Attaching LoRA Adapters</a></li>
+          <li><a href="#dataset">Loading the Dataset</a></li>
+          <li><a href="#formatting">Formatting for ChatML</a></li>
+          <li><a href="#training">Training Configuration</a></li>
+          <li><a href="#export">Exporting and Pushing to Hub</a></li>
+          <li><a href="#results">Results and Observations</a></li>
+        </ol>
+      </div>
+
+      <!-- 1. Background -->
+      <h2 id="background"><span class="section-num">1</span> Background</h2>
+
+      <p>
+        Fine-tuning a large language model used to require significant hardware — multiple high-end GPUs and days of training time. Two techniques have made it accessible on a single consumer or prosumer GPU:
+      </p>
+      <ul>
+        <li><strong>QLoRA</strong> (Quantized Low-Rank Adaptation) — loads the base model in 4-bit precision to fit in limited VRAM, then trains only a small set of low-rank adapter matrices rather than the full parameter set. The adapters are trained in higher precision (bfloat16) even though the base weights are quantized.</li>
+        <li><strong>Unsloth</strong> — a library that reimplements attention kernels and memory management for QLoRA training, cutting VRAM usage by ~30% and speeding up training roughly 2× compared to a naive HuggingFace + bitsandbytes setup.</li>
+      </ul>
+      <p>
+        The base model chosen is <strong>Qwen2.5-Coder-7B-Instruct</strong>, a code-focused instruction-tuned model from Alibaba's Qwen team. The 4-bit quantized version from Unsloth's HuggingFace org is used directly — it is already quantized and ready to load without a separate quantization step.
+      </p>
+
+      <!-- 2. Setup -->
+      <h2 id="setup"><span class="section-num">2</span> Setup</h2>
+
+      <div class="notice-box warn">
+        <strong>⚠ Hardware requirement</strong>
+        This setup requires a CUDA GPU with at least ~16 GB VRAM. The configuration was tested on an RTX 5080 (16 GB). A T4 on Colab (15 GB) will work with slightly reduced batch sizes.
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">terminal</div>
+        <pre>pip install unsloth trl transformers datasets bitsandbytes accelerate</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label">finetune.py — imports</div>
+        <pre><span class="kw">from</span> unsloth <span class="kw">import</span> FastLanguageModel
+<span class="kw">from</span> datasets <span class="kw">import</span> load_dataset
+<span class="kw">from</span> trl <span class="kw">import</span> SFTTrainer, SFTConfig
+<span class="kw">import</span> torch</pre>
+      </div>
+
+      <p>Key constants used throughout the script:</p>
+
+      <div class="code-block">
+        <div class="code-label">finetune.py — config</div>
+        <pre>MODEL_NAME     = <span class="st">"unsloth/Qwen2.5-Coder-7B-Instruct-bnb-4bit"</span>
+MAX_SEQ_LENGTH = <span class="nm">1024</span>   <span class="cm"># increase to 4096 if you have headroom</span>
+LORA_RANK      = <span class="nm">16</span>     <span class="cm"># 8–64; higher = more capacity, more VRAM</span>
+OUTPUT_DIR     = <span class="st">"./qwen-python-finetuned"</span></pre>
+      </div>
+
+      <!-- 3. Loading the model -->
+      <h2 id="model"><span class="section-num">3</span> Loading the Model (4-bit QLoRA)</h2>
+
+      <p>
+        <code>FastLanguageModel.from_pretrained</code> is Unsloth's drop-in replacement for the standard HuggingFace loader. It handles 4-bit loading, flash attention patching, and rope scaling automatically.
+      </p>
+
+      <div class="code-block">
+        <div class="code-label">finetune.py — load model</div>
+        <pre>model, tokenizer = FastLanguageModel.from_pretrained(
+    model_name      = MODEL_NAME,
+    max_seq_length  = MAX_SEQ_LENGTH,
+    load_in_4bit    = <span class="hl">True</span>,   <span class="cm"># essential for 16 GB VRAM</span>
+    dtype           = <span class="hl">None</span>,   <span class="cm"># auto-detect (bfloat16 on Ampere+)</span>
+)</pre>
+      </div>
+
+      <p>
+        Setting <code>dtype=None</code> lets Unsloth pick the best floating-point format for the GPU. On Ampere and later architectures (RTX 3000+, A100, H100) this resolves to <code>bfloat16</code>, which has a wider dynamic range than <code>float16</code> and is less prone to loss spikes during training.
+      </p>
+
+      <!-- 4. LoRA adapters -->
+      <h2 id="lora"><span class="section-num">4</span> Attaching LoRA Adapters</h2>
+
+      <p>
+        LoRA freezes the pre-trained weights and injects trainable rank decomposition matrices into specific layers. Only these adapter matrices are updated during training, dramatically reducing the number of trainable parameters while still allowing meaningful task specialisation.
+      </p>
+
+      <div class="code-block">
+        <div class="code-label">finetune.py — LoRA config</div>
+        <pre>model = FastLanguageModel.get_peft_model(
+    model,
+    r                        = LORA_RANK,         <span class="cm"># rank of adapter matrices</span>
+    lora_alpha               = LORA_RANK * <span class="nm">2</span>,    <span class="cm"># scaling factor, 2× rank is common</span>
+    lora_dropout             = <span class="nm">0.05</span>,
+    target_modules           = [                  <span class="cm"># attention + FFN projections</span>
+        <span class="st">"q_proj"</span>, <span class="st">"k_proj"</span>, <span class="st">"v_proj"</span>, <span class="st">"o_proj"</span>,
+        <span class="st">"gate_proj"</span>, <span class="st">"up_proj"</span>, <span class="st">"down_proj"</span>,
+    ],
+    bias                     = <span class="st">"none"</span>,
+    use_gradient_checkpointing = <span class="st">"unsloth"</span>,     <span class="cm"># saves ~30% VRAM</span>
+    random_state             = <span class="nm">42</span>,
+)</pre>
+      </div>
+
+      <p>
+        The <code>target_modules</code> list covers both the attention projections (<code>q/k/v/o_proj</code>) and the feed-forward network projections (<code>gate/up/down_proj</code>). Targeting both is generally better than attention-only for code tasks where the FFN stores a lot of factual knowledge. With rank 16 this adds roughly 40 million trainable parameters on top of the frozen 7B base — about 0.6% of total weights.
+      </p>
+
+      <div class="notice-box">
+        <strong>ℹ Gradient checkpointing</strong>
+        Setting <code>use_gradient_checkpointing="unsloth"</code> uses Unsloth's custom implementation, which recomputes activations during the backward pass instead of storing them. This trades compute for memory, reducing peak VRAM by around 30% with minimal speed penalty.
+      </div>
+
+      <!-- 5. Dataset -->
+      <h2 id="dataset"><span class="section-num">5</span> Loading the Dataset</h2>
+
+      <p>
+        The training dataset is <a href="https://huggingface.co/datasets/iamtarun/python_code_instructions_18k_alpaca"><code>iamtarun/python_code_instructions_18k_alpaca</code></a>, a collection of ~18,000 Python coding instructions in Alpaca format (instruction, optional input, output).
+      </p>
+
+      <div class="code-block">
+        <div class="code-label">finetune.py — load dataset</div>
+        <pre>dataset = load_dataset(
+    <span class="st">"iamtarun/python_code_instructions_18k_alpaca"</span>,
+    split=<span class="st">"train"</span>
+)
+
+<span class="cm"># Schema: ['instruction', 'input', 'output', 'prompt']</span>
+print(dataset.column_names)
+print(dataset[<span class="nm">0</span>])</pre>
+      </div>
+
+      <p>
+        The dataset includes a pre-built <code>prompt</code> column formatted for Alpaca-style completion, but since Qwen2.5-Instruct uses <strong>ChatML</strong> rather than Alpaca format, this column is ignored and the examples are reformatted manually.
+      </p>
+
+      <!-- 6. Formatting -->
+      <h2 id="formatting"><span class="section-num">6</span> Formatting for ChatML</h2>
+
+      <p>
+        Qwen2.5-Instruct was trained with the ChatML template, which wraps each turn in <code>&lt;|im_start|&gt;</code> / <code>&lt;|im_end|&gt;</code> markers. Using the tokenizer's <code>apply_chat_template</code> method ensures the special tokens are inserted correctly without manual string construction.
+      </p>
+
+      <div class="code-block">
+        <div class="code-label">finetune.py — format_example</div>
+        <pre><span class="kw">def</span> <span class="fn">format_example</span>(example):
+    user_content = example[<span class="st">"instruction"</span>]
+
+    <span class="cm"># some examples include an additional input field</span>
+    <span class="kw">if</span> example.get(<span class="st">"input"</span>, <span class="st">""</span>).strip():
+        user_content += <span class="st">f"\n\n### Input:\n{example['input']}"</span>
+
+    messages = [
+        {
+            <span class="st">"role"</span>: <span class="st">"system"</span>,
+            <span class="st">"content"</span>: (
+                <span class="st">"You are an expert Python programmer. "</span>
+                <span class="st">"Write clean, efficient, well-commented Python code."</span>
+            ),
+        },
+        {<span class="st">"role"</span>: <span class="st">"user"</span>,      <span class="st">"content"</span>: user_content},
+        {<span class="st">"role"</span>: <span class="st">"assistant"</span>, <span class="st">"content"</span>: example[<span class="st">"output"</span>]},
+    ]
+
+    text = tokenizer.apply_chat_template(
+        messages,
+        tokenize             = <span class="hl">False</span>,
+        add_generation_prompt = <span class="hl">False</span>,  <span class="cm"># False during training</span>
+    )
+    <span class="kw">return</span> {<span class="st">"text"</span>: text}
+
+dataset = dataset.map(format_example, remove_columns=dataset.column_names)
+
+<span class="cm"># 95/5 train/eval split</span>
+split    = dataset.train_test_split(test_size=<span class="nm">0.05</span>, seed=<span class="nm">42</span>)
+train_ds = split[<span class="st">"train"</span>]
+eval_ds  = split[<span class="st">"test"</span>]</pre>
+      </div>
+
+      <p>
+        Setting <code>add_generation_prompt=False</code> during training is important — during training the full assistant turn is already included in the example, so no generation prompt is needed. At inference time this is flipped to <code>True</code> so the model knows to start generating a response.
+      </p>
+
+      <!-- 7. Training -->
+      <h2 id="training"><span class="section-num">7</span> Training Configuration</h2>
+
+      <div class="code-block">
+        <div class="code-label">finetune.py — SFTConfig</div>
+        <pre>training_args = SFTConfig(
+    output_dir = OUTPUT_DIR,
+
+    <span class="cm"># batching</span>
+    per_device_train_batch_size  = <span class="nm">2</span>,
+    gradient_accumulation_steps  = <span class="nm">4</span>,   <span class="cm"># effective batch size = 8</span>
+    num_train_epochs             = <span class="nm">1</span>,
+
+    <span class="cm"># optimizer</span>
+    learning_rate      = <span class="nm">2e-4</span>,
+    lr_scheduler_type  = <span class="st">"cosine"</span>,
+    warmup_ratio       = <span class="nm">0.05</span>,
+    weight_decay       = <span class="nm">0.01</span>,
+    optim              = <span class="st">"adamw_8bit"</span>,  <span class="cm"># saves VRAM vs fp32 Adam</span>
+
+    <span class="cm"># precision — auto-select fp16 vs bf16</span>
+    fp16 = <span class="hl">not</span> torch.cuda.is_bf16_supported(),
+    bf16 = torch.cuda.is_bf16_supported(),
+
+    <span class="cm"># logging</span>
+    logging_steps          = <span class="nm">10</span>,
+    save_strategy          = <span class="st">"epoch"</span>,
+    eval_strategy          = <span class="st">"epoch"</span>,
+    load_best_model_at_end = <span class="hl">True</span>,
+    report_to              = <span class="st">"none"</span>,
+
+    <span class="cm"># sequence packing — combines short examples to fill context windows</span>
+    dataset_text_field = <span class="st">"text"</span>,
+    max_seq_length     = MAX_SEQ_LENGTH,
+    packing            = <span class="hl">True</span>,
+)</pre>
+      </div>
+
+      <p>A few choices worth noting:</p>
+      <ul>
+        <li><strong>Gradient accumulation</strong> — with a physical batch size of 2 and 4 accumulation steps, the effective batch size is 8. This simulates a larger batch without the VRAM cost.</li>
+        <li><strong>AdamW 8-bit</strong> — bitsandbytes' 8-bit Adam stores optimizer states in 8-bit, roughly halving their memory footprint compared to the standard fp32 Adam states used by default.</li>
+        <li><strong>Sequence packing</strong> — rather than padding all sequences to the same length and wasting compute on padding tokens, packing concatenates multiple short examples together to fill each context window. This typically improves GPU utilisation and speeds up training.</li>
+        <li><strong>One epoch</strong> — with 18k examples this is enough to meaningfully shift the output style without overfitting on a small dataset.</li>
+      </ul>
+
+      <div class="code-block">
+        <div class="code-label">finetune.py — train</div>
+        <pre>trainer = SFTTrainer(
+    model         = model,
+    tokenizer     = tokenizer,
+    train_dataset = train_ds,
+    eval_dataset  = eval_ds,
+    args          = training_args,
+)
+
+trainer_stats = trainer.train()
+print(<span class="st">f"Done! Runtime: {trainer_stats.metrics['train_runtime']:.0f}s"</span>)
+
+<span class="cm"># save LoRA adapters only (lightweight — not the full model)</span>
+model.save_pretrained(OUTPUT_DIR)
+tokenizer.save_pretrained(OUTPUT_DIR)</pre>
+      </div>
+
+      <!-- 8. Export -->
+      <h2 id="export"><span class="section-num">8</span> Exporting and Pushing to Hub</h2>
+
+      <h3>8.1 GGUF export for llama.cpp / Ollama</h3>
+      <p>
+        After training, the adapters can be exported directly to GGUF format for use with llama.cpp or Ollama. Unsloth handles the merge-and-quantize step in one call:
+      </p>
+      <div class="code-block">
+        <div class="code-label">finetune.py — GGUF export</div>
+        <pre>model.save_pretrained_gguf(
+    OUTPUT_DIR + <span class="st">"-gguf"</span>,
+    tokenizer,
+    quantization_method = <span class="st">"q4_k_m"</span>,  <span class="cm"># good quality/size tradeoff</span>
+)</pre>
+      </div>
+
+      <h3>8.2 Pushing to HuggingFace Hub</h3>
+      <p>
+        A separate <code>hf_push.py</code> script reloads the saved adapters and pushes them to HuggingFace Hub. The model is published under the <code>xtremecoder</code> HuggingFace account:
+      </p>
+      <div class="code-block">
+        <div class="code-label">hf_push.py</div>
+        <pre><span class="kw">from</span> unsloth <span class="kw">import</span> FastLanguageModel
+
+MAX_SEQ_LENGTH = <span class="nm">1024</span>
+
+<span class="kw">def</span> <span class="fn">push_model</span>(local_model_name: str, hf_model_name: str):
+    model, tokenizer = FastLanguageModel.from_pretrained(
+        model_name     = local_model_name,
+        max_seq_length = MAX_SEQ_LENGTH,
+        load_in_4bit   = <span class="hl">True</span>,
+    )
+    model.push_to_hub(hf_model_name)
+
+push_model(
+    local_model_name = <span class="st">"./qwen-python-finetuned"</span>,
+    hf_model_name    = <span class="st">"xtremecoder/Qwen2.5-Coder-7B-Instruct-Python-bnb-4bit"</span>,
+)</pre>
+      </div>
+
+      <!-- 9. Results -->
+      <h2 id="results"><span class="section-num">9</span> Results and Observations</h2>
+
+      <p>
+        Comparing the original and fine-tuned models side by side using <code>load_model.py</code> reveals a clear shift in output style. The fine-tuned model drops explanatory prose and generates code directly, mirroring the <code>output</code> field style in the training dataset.
+      </p>
+
+      <h3>9.1 Example: "Create a hello world program"</h3>
+
+      <table class="cmp-table">
+        <thead>
+          <tr>
+            <th style="width:50%">Original Qwen2.5-Coder-7B-Instruct</th>
+            <th style="width:50%">Fine-tuned model</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <p style="font-family:sans-serif;font-size:0.82rem;margin-bottom:6px">Certainly! Below is a simple "Hello, World!" program in Python:</p>
+              <pre style="margin:0;font-size:0.8rem">print(<span class="st">"Hello, World!"</span>)</pre>
+              <p style="font-family:sans-serif;font-size:0.82rem;margin-top:6px;color:var(--text-muted)">To run this program, you can save it to a file with a <code>.py</code> extension and execute it using a Python interpreter…</p>
+            </td>
+            <td>
+              <pre style="margin:0;font-size:0.8rem">print(<span class="st">"Hello World!"</span>)</pre>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>The broader pattern across many prompts:</p>
+      <ul>
+        <li><strong>No preamble or explanation</strong> — the fine-tuned model outputs code immediately, without "Certainly!" or surrounding commentary. This is a direct result of the training data's <code>output</code> field containing only code.</li>
+        <li><strong>Different code style</strong> — the generated code is sometimes more concise and occasionally uses different approaches than the base model. In some cases it is more efficient; in others it introduces subtle correctness issues.</li>
+        <li><strong>Reduced verbosity</strong> — inline comments and docstrings appear less frequently than in the base model's output.</li>
+      </ul>
+
+      <div class="notice-box warn">
+        <strong>⚠ Correctness trade-off</strong>
+        The fine-tuned model's code is occasionally subtly wrong in ways the base model is not — likely a consequence of the training dataset's quality rather than the fine-tuning process itself. For production use the dataset would need careful filtering or the model would need evaluation on a held-out correctness benchmark.
+      </div>
+
+      <h3>9.2 Running the comparison yourself</h3>
+      <div class="code-block">
+        <div class="code-label">load_model.py</div>
+        <pre><span class="kw">from</span> unsloth <span class="kw">import</span> FastLanguageModel
+
+ORIGINAL = <span class="st">"unsloth/Qwen2.5-Coder-7B-Instruct-bnb-4bit"</span>
+MAX_SEQ_LENGTH = <span class="nm">1024</span>
+
+<span class="kw">def</span> <span class="fn">generate_output</span>(model_name: str, user_content: str) -> <span class="hl">None</span>:
+    model, tokenizer = FastLanguageModel.from_pretrained(
+        model_name, max_seq_length=MAX_SEQ_LENGTH, load_in_4bit=<span class="hl">True</span>
+    )
+    FastLanguageModel.for_inference(model)  <span class="cm"># switch to faster inference mode</span>
+
+    prompt = tokenizer.apply_chat_template(
+        [
+            {<span class="st">"role"</span>: <span class="st">"system"</span>,  <span class="st">"content"</span>: <span class="st">"You are an expert Python programmer."</span>},
+            {<span class="st">"role"</span>: <span class="st">"user"</span>,    <span class="st">"content"</span>: user_content},
+        ],
+        tokenize=<span class="hl">False</span>, add_generation_prompt=<span class="hl">True</span>,
+    )
+
+    inputs  = tokenizer(prompt, return_tensors=<span class="st">"pt"</span>).to(<span class="st">"cuda"</span>)
+    outputs = model.generate(
+        **inputs, max_new_tokens=<span class="nm">8144</span>,
+        temperature=<span class="nm">0.2</span>, do_sample=<span class="hl">True</span>,
+    )
+    response = tokenizer.decode(
+        outputs[<span class="nm">0</span>][inputs[<span class="st">"input_ids"</span>].shape[<span class="nm">1</span>]:],
+        skip_special_tokens=<span class="hl">True</span>
+    )
+    print(<span class="st">f"\n── {model_name} ──"</span>)
+    print(response)
+
+prompt_msg = <span class="st">"Create a calculator program"</span>
+generate_output(ORIGINAL, prompt_msg)
+generate_output(<span class="st">"./qwen-python-finetuned"</span>, prompt_msg)</pre>
+      </div>
+
+      <p>
+        Note <code>FastLanguageModel.for_inference(model)</code> — this call patches the model with Unsloth's optimised inference kernels, which are separate from the training-time kernels and give a further speed boost at generation time.
+      </p>
+
+      <div class="see-also">
+        <strong>See also:</strong>
+        <a href="https://github.com/maheshkhanwalkar/LLM">GitHub repo ↗</a>
+        <a href="https://huggingface.co/xtremecoder/Qwen2.5-Coder-7B-Instruct-Python-bnb-4bit">Fine-tuned model on HF ↗</a>
+        <a href="https://github.com/unslothai/unsloth">Unsloth ↗</a>
+        <a href="https://huggingface.co/datasets/iamtarun/python_code_instructions_18k_alpaca">Training dataset ↗</a>
+      </div>
+
+      <div class="tag-list">
+        <span class="tag">llm</span>
+        <span class="tag">fine-tuning</span>
+        <span class="tag">qlora</span>
+        <span class="tag">unsloth</span>
+        <span class="tag">huggingface</span>
+        <span class="tag">qwen</span>
+        <span class="tag">python</span>
+        <span class="tag">trl</span>
+      </div>
+
+      <div class="article-nav">
+        <span>More articles coming soon</span>
+      </div>
+
+    </div><!-- .article-body -->
+  </main>
+</div><!-- #layout -->
+
+<footer id="site-footer">
+  <p>
+    Mahesh's Tech Talk · Licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
+    unless otherwise noted · Hosted on <a href="https://pages.github.com/">GitHub Pages</a>
+    · <a href="https://github.com/maheshkhanwalkar/maheshkhanwalkar.github.io">Source</a>
+  </p>
+</footer>
+
+</body>
+</html>
