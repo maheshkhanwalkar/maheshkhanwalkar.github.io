@@ -101,42 +101,6 @@
       color: var(--text-muted);
       font-family: sans-serif;
     }
-    .header-search {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      padding: 10px 16px;
-      gap: 8px;
-    }
-    .search-wrap {
-      display: flex;
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      overflow: hidden;
-      background: white;
-    }
-    .search-wrap input {
-      border: none;
-      outline: none;
-      padding: 5px 10px;
-      font-size: 0.9rem;
-      width: 220px;
-      font-family: sans-serif;
-      color: var(--text);
-    }
-    .search-wrap button {
-      background: var(--heading-bg);
-      border: none;
-      border-left: 1px solid var(--border);
-      padding: 5px 10px;
-      cursor: pointer;
-      font-size: 0.8rem;
-      font-family: sans-serif;
-      color: var(--text-muted);
-    }
-    .search-wrap button:hover { background: var(--border-light); }
-
     /* ── Navigation Bar ───────────────────────────────────────── */
     #site-nav {
       background: var(--accent);
@@ -548,59 +512,6 @@
 </head>
   <!-- Scripts -->
   <script>
-    // Search functionality
-    (function() {
-      const searchInput = document.querySelector('.header-search input');
-      const searchBtn = document.querySelector('.header-search button');
-      const articleCards = document.querySelectorAll('.article-card');
-      const sidebarItems = document.querySelectorAll('#sidebar ul li a');
-      let currentSearch = '';
-
-      function filterArticles() {
-        const query = searchInput.value.toLowerCase().trim();
-        currentSearch = query;
-
-        articleCards.forEach(card => {
-          const title = card.querySelector('h3 a').textContent.toLowerCase();
-          const desc = card.querySelector('p').textContent.toLowerCase();
-          const tags = Array.from(card.querySelectorAll('.tag')).map(t => t.textContent.toLowerCase());
-          const date = card.querySelector('.card-date').textContent.toLowerCase();
-
-          const matches = title.includes(query) ||
-                          desc.includes(query) ||
-                          tags.some(t => t.includes(query)) ||
-                          date.includes(query);
-
-          card.style.display = matches ? '' : 'none';
-        });
-
-        // Update sidebar to reflect filtered results
-        updateSidebar(query);
-      }
-
-      function updateSidebar(query) {
-        sidebarItems.forEach(link => {
-          link.classList.remove('current');
-          if (query) {
-            link.classList.add('current');
-          }
-        });
-      }
-
-      searchInput.addEventListener('input', filterArticles);
-      searchBtn.addEventListener('click', filterArticles);
-
-      // Keyboard navigation for search
-      searchInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          searchBtn.click();
-        }
-      });
-
-      // Initialize
-      filterArticles();
-    })();
-
     // Update active nav/tab based on URL
     (function() {
       const navLinks = document.querySelectorAll('#site-nav a');
@@ -631,12 +542,6 @@
         <span>Personal Technical Articles</span>
       </div>
     </a>
-    <div class="header-search">
-      <div class="search-wrap">
-        <input type="text" placeholder="Search articles…" aria-label="Search" />
-        <button>Go</button>
-      </div>
-    </div>
   </div>
 </header>
 
@@ -693,12 +598,6 @@
     </div>
 
     <div class="article-body clearfix">
-
-      <div class="notice-box">
-        <strong>🔍 Search</strong>
-        <p>Type in the search box above to filter articles by title or description.</p>
-      </div>
-
       <div class="infobox">
         <div class="infobox-title">Site Info</div>
         <table>
